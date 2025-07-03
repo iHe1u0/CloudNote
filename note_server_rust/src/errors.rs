@@ -5,6 +5,7 @@ use axum::{
 };
 use serde_json::{Value, json};
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum AppError {
     DbError(sqlx::Error),
