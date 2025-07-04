@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart' show GoRoute, GoRouter;
 
 class AppRoutes {
   static final GoRouter router = GoRouter(
-    initialLocation: '/note/list',
+    initialLocation: '/user/login',
     routes: [
       GoRoute(path: '/user/login', name: 'user_login', builder: (context, state) => const LoginPage()),
       GoRoute(path: "/note/list", name: "note_list", builder: (context, state) => const NoteListPage()),

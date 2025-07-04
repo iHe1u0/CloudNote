@@ -68,6 +68,9 @@ async fn login(
     State(pool): State<MySqlPool>,
     Json(payload): Json<AuthPayload>,
 ) -> Json<ApiResponse<String>> {
+
+    println!("Login attempt with email: {}", payload.email);
+
     let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE email = ?")
         .bind(&payload.email)
         .fetch_one(&pool)

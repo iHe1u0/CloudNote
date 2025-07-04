@@ -1,4 +1,6 @@
+import 'package:client/core/network/http_service.dart' show HttpService;
 import 'package:client/views/widgets/clickable_text.dart' show ClickableText;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -20,18 +22,31 @@ class _LoginPageState extends State<LoginPage> {
 
   void _login() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 2)); // 模拟登录请求
 
-    if (mounted) {
-      if (_emailCtrl.text == 'test@example.com' && _passwordCtrl.text == '123456') {
-        // 成功
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('登录成功')));
+    try {
+      final response = await HttpService.post(
+        '/note/api/login',
+        data: {'email': _emailCtrl.text, 'password': _passwordCtrl.text},
+      );
+
+      final data = response.data;
+      debugPrint(data.toString());
+      if (data['code'] == 0) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('登录成功')));
+        }
+        // TODO: 保存 token，跳转主页等
       } else {
-        // 失败
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('邮箱或密码错误')));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('登录失败: ${data['message']}')));
+        }
       }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('登录失败')));
+      }
+      debugPrint('Login error: $e');
     }
 
     setState(() => _isLoading = false);
@@ -73,6 +88,9 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           keyboardType: TextInputType.emailAddress,
                           validator: (val) {
+                            if (kDebugMode) {
+                              return null;
+                            }
                             if (val == null || val.isEmpty) return '请输入邮箱';
                             if (!val.contains('@')) return '邮箱格式错误';
                             return null;
@@ -88,6 +106,9 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           obscureText: true,
                           validator: (val) {
+                            if (kDebugMode) {
+                              return null;
+                            }
                             if (val == null || val.isEmpty) return '请输入密码';
                             if (val.length < 6) return '密码长度至少6位';
                             return null;
