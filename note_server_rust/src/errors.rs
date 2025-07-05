@@ -16,21 +16,17 @@ pub enum AppError {
 }
 
 impl IntoResponse for AppError {
+    /// 将 AppError 转换为 Axum 的 Response，这里使用 JSON 格式返回错误信息
     fn into_response(self) -> Response {
         let (status, error_message): (StatusCode, Value) = match self {
             AppError::DbError(e) => {
                 println!("Database error: {:?}", e);
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    json!({"error": "数据库错误"}),
-                )
+                (StatusCode::INTERNAL_SERVER_ERROR, json!({"error": "数据库错误"}))
             }
             AppError::Unauthorized => (StatusCode::UNAUTHORIZED, json!({"error": "未授权访问"})),
             AppError::NotFound(msg) => (StatusCode::NOT_FOUND, json!({"error": msg})),
             AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, json!({"error": msg})),
-            AppError::InternalServerError(msg) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, json!({"error": msg}))
-            }
+            AppError::InternalServerError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, json!({"error": msg})),
         };
 
         (status, Json(error_message)).into_response()

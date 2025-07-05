@@ -10,6 +10,7 @@ mod db;
 mod errors;
 mod models;
 mod routes;
+mod utils;
 
 #[tokio::main]
 async fn main() {
@@ -20,16 +21,10 @@ async fn main() {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
     // 连接数据库
-    let pool = MySqlPoolOptions::new()
-        .connect(&database_url)
-        .await
-        .expect("Could not connect to database");
+    let pool = MySqlPoolOptions::new().connect(&database_url).await.expect("Could not connect to database");
 
     // 一些配置信息
-    let cors = CorsLayer::new()
-        .allow_origin(Any)
-        .allow_headers(Any)
-        .allow_methods(Any);
+    let cors = CorsLayer::new().allow_origin(Any).allow_headers(Any).allow_methods(Any);
     // 初始化路由
     let app = Router::new()
         .merge(routes::users::routes())
